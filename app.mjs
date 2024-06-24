@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config({ path: `${process.cwd()}/.env` });
 import express from "express";
 
-import authRouter from "./routes/authRoute.js";
+import authRouter from "./routes/authRoute.mjs";
 
 const app = express();
 

@@ -1,0 +1,42 @@
+"use strict";
+
+import sequelize from "../../config/database.mjs";
+
+
+import { Sequelize } from "sequelize";
+
+export default sequelize.define("user", {
+  id: {
+    allowNull: false,
+    autoIncrement: true,
+    primaryKey: true,
+    type: Sequelize.INTEGER,
+  },
+  userType: {
+    type: Sequelize.ENUM("0", "1", "2"),
+  },
+  firstName: {
+    type: Sequelize.STRING,
+  },
+  lastName: {
+    type: Sequelize.STRING,
+  },
+  password: {
+    type: Sequelize.STRING,
+  },
+  createdAt: {
+    allowNull: false,
+    type: Sequelize.DATE,
+  },
+  updatedAt: {
+    allowNull: false,
+    type: Sequelize.DATE,
+  },
+  deletedAt: {
+    type: Sequelize.DATE,
+  },
+}, {
+  paranoid: true, // actual data will not be deleted from the table it will only be deleted from deletedAt etc softdelete feature
+  freezeTableName: true, // make it user permanent rather than users
+  modelName: 'user'
+});
