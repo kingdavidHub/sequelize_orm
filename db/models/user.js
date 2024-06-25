@@ -1,7 +1,10 @@
 "use strict";
-const { Model, Sequelize } = require("sequelize");
+const { Model, Sequelize, DataTypes } = require("sequelize");
 const sequelize = require("../../config/database");
 
+const bcrypt = require('bcrypt');
+
+// change from sequelize to datatypes to see autosuggestion they are both the same thing. Only diff is sequelize doesn't give auto suggestion
 module.exports = sequelize.define(
   "user",
   {
@@ -9,33 +12,46 @@ module.exports = sequelize.define(
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
     },
     userType: {
-      type: Sequelize.ENUM("0", "1", "2"),
+      type: DataTypes.ENUM("0", "1", "2"),
     },
     firstName: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
     },
     lastName: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
     },
     email: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
     },
     password: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
+    },
+    confirmPassword: {
+      // Using virtual it will not be stored in the database
+      type: DataTypes.VIRTUAL,
+      set(value){
+        if(value === this.password){
+          const salt = bcrypt.genSaltSync(10);
+          const hashpassword = bcrypt.hashSync(value, salt);
+          this.setDataValue('password', hashpassword);
+        }else {
+          throw new Error('password and confirm password must be the same')
+        }
+      }
     },
     createdAt: {
       allowNull: false,
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
     },
     updatedAt: {
       allowNull: false,
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
     },
     deletedAt: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
     },
   },
   {
