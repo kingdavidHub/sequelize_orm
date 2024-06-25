@@ -7,14 +7,9 @@ const app = express();
 
 const PORT = process.env.APP_PORT || 5050;
 
-app.get("/", (req, res) => {
-  res.status(200).json({
-    status: "success",
-    msg: "WooHoo! REST APIs",
-  });
-});
-
 // Middleware
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 // ThirdParty Middleware
 
@@ -29,7 +24,6 @@ app.use("*", (req, res, next) => {
 });
 
 // SERVER
-
 app.listen(PORT, () => {
   console.log(`Server up and running on ${PORT}`);
 });
