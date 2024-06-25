@@ -1,8 +1,7 @@
-import dotenv from "dotenv";
-dotenv.config({ path: `${process.cwd()}/.env` });
-import express from "express";
+require("dotenv").config({ path: `${process.cwd()}/.env` });
+const express = require("express");
 
-import authRouter from "./routes/authRoute.mjs";
+const authRouter = require("./routes/authRoute");
 
 const app = express();
 

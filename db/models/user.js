@@ -1,9 +1,8 @@
 "use strict";
 
-import sequelize from "../../config/database.mjs";
+const sequelize = require("../../config/database");
 
-
-import { Sequelize } from "sequelize";
+const  { Sequelize } = require("sequelize");
 
 export default sequelize.define("user", {
   id: {

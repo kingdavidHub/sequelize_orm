@@ -1,7 +1,8 @@
-
-export const signup = (req, res, next) => {
+signup = (req, res, next) => {
   res.json({
-    status:"success",
-    msg: "signup route"
+    status: "success",
+    msg: "signup route",
   });
-}
+};
+
+module.exports = { signup };
