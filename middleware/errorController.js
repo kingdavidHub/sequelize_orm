@@ -26,6 +26,7 @@ const sendErrorProd = (err, res) => {
     });
   }
 
+  console.log(err.name, err.message, stack)
   // meaning this error is not handled by us anywhere inside the app
   return res.status(500).json({
     status: "error",

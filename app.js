@@ -33,7 +33,7 @@ app.use(
     // throw new Error("this is error"); // using the wrapper global error handler can now catch it with async function
 
     // Using custom AppError
-    throw new AppError("This is error", 404);
+    throw new AppError(`Cant find ${req.originalUrl} on this server`, 404);
   })
 );
 

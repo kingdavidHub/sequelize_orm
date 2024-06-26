@@ -1,6 +1,8 @@
 const user = require("../db/models/user.js");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const catchAsync = require("../utils/catchAsync.js");
+const AppError = require("../utils/appError.js");
 
 const generateToken = (payload) => {
   return jwt.sign(payload, process.env.JWT_SECRET, {
@@ -8,7 +10,7 @@ const generateToken = (payload) => {
   });
 };
 
-const signup = async (req, res, next) => {
+const signup = catchAsync(async (req, res, next) => {
   const { userType, firstName, lastName, email, password, confirmPassword } =
     req.body;
 
@@ -20,47 +22,41 @@ const signup = async (req, res, next) => {
    */
 
   if (!["1", "2"].includes(userType)) {
-    return res.status(400).json({
-      status: "fail",
-      message: "Invalid user type",
-    });
+    throw new AppError('Invalid user type', 400);
   }
-  try {
-    const newUser = await user.create({
-      userType,
-      firstName,
-      lastName,
-      email,
-      password,
-      confirmPassword,
-    });
 
-    const result = newUser.toJSON();
+  const newUser = await user.create({
+    userType,
+    firstName,
+    lastName,
+    email,
+    password,
+    confirmPassword,
+  });
 
-    delete result.password;
-    delete result.deletedAt;
-
-    // result.token = jwt.sign({id: result.id}, process.env.JWT_SECRET, {expiresIn: '1h'});
-
-    result.token = generateToken({ id: result.id });
-
-    if (!result) {
-      return res.status(400).json({
-        status: "fail",
-        message: "Failed to create user",
-      });
-    }
-
-    return res.status(201).json({
-      status: "success",
-      data: result,
-    });
-  } catch (error) {
-    next(error);
+  if (!newUser) {
+    return next(new AppError("Failed to create user", 400));
   }
-};
 
-const login = async (req, res, next) => {
+  const result = newUser.toJSON();
+  
+
+  delete result.password;
+  delete result.deletedAt;
+
+  // result.token = jwt.sign({id: result.id}, process.env.JWT_SECRET, {expiresIn: '1h'});
+
+  result.token = generateToken({ id: result.id });
+
+  
+
+  return res.status(201).json({
+    status: "success",
+    data: result,
+  });
+});
+
+const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
   // check if email and password exist
@@ -71,26 +67,22 @@ const login = async (req, res, next) => {
     });
   }
 
-  try {
-    // check if user exist and password is correct
-    // if err is thrown from 3-party packages our err handler will not be able to catch it. To handle it we need to use tryCatch block
-    const result = await user.findOne({ where: { email } });
-    if (!result || !bcrypt.compareSync(password, result.password)) {
-      return res.status(401).json({
-        status: "Failed",
-        message: "Incorrect email or password",
-      });
-    }
-
-    const token = generateToken({ id: result.id });
-
-    return res.json({
-      status: "success",
-      token,
+  // check if user exist and password is correct
+  // if err is thrown from 3-party packages our err handler will not be able to catch it. To handle it we need to use tryCatch block
+  const result = await user.findOne({ where: { email } });
+  if (!result || !bcrypt.compareSync(password, result.password)) {
+    return res.status(401).json({
+      status: "Failed",
+      message: "Incorrect email or password",
     });
-  } catch (error) {
-    next(error);
   }
-};
+
+  const token = generateToken({ id: result.id });
+
+  return res.json({
+    status: "success",
+    token,
+  });
+});
 
 module.exports = { signup, login };
