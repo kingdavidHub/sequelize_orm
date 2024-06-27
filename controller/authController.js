@@ -22,7 +22,7 @@ const signup = catchAsync(async (req, res, next) => {
    */
 
   if (!["1", "2"].includes(userType)) {
-    throw new AppError('Invalid user type', 400);
+    throw new AppError("Invalid user type", 400);
   }
 
   const newUser = await user.create({
@@ -39,7 +39,6 @@ const signup = catchAsync(async (req, res, next) => {
   }
 
   const result = newUser.toJSON();
-  
 
   delete result.password;
   delete result.deletedAt;
@@ -47,8 +46,6 @@ const signup = catchAsync(async (req, res, next) => {
   // result.token = jwt.sign({id: result.id}, process.env.JWT_SECRET, {expiresIn: '1h'});
 
   result.token = generateToken({ id: result.id });
-
-  
 
   return res.status(201).json({
     status: "success",
@@ -61,20 +58,14 @@ const login = catchAsync(async (req, res, next) => {
 
   // check if email and password exist
   if (!email || !password) {
-    return res.status(400).json({
-      status: "Failed",
-      message: "Please provide email and password",
-    });
+    return next(new AppError("Please provide email and password", 400));
   }
 
   // check if user exist and password is correct
   // if err is thrown from 3-party packages our err handler will not be able to catch it. To handle it we need to use tryCatch block
   const result = await user.findOne({ where: { email } });
   if (!result || !bcrypt.compareSync(password, result.password)) {
-    return res.status(401).json({
-      status: "Failed",
-      message: "Incorrect email or password",
-    });
+    return next(new AppError("Incorrect email or password", 401));
   }
 
   const token = generateToken({ id: result.id });

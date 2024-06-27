@@ -4,7 +4,7 @@ const sendErrorDev = (err, res) => {
   const statusCode = err.statusCode || 500;
   const status = err.status || "error";
   const message = err.message;
-  const stack = err.statck;
+  const stack = err.statck || "no stack";
 
   res.status(statusCode).json({
     status,
